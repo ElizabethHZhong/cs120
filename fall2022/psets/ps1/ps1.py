@@ -1,5 +1,5 @@
 from asyncio import base_tasks
-import math
+from math import log, ceil
 import time
 import random
 
@@ -43,7 +43,7 @@ def mergeSort(arr):
     if len(arr) < 2:
         return arr
 
-    midpt = int(math.ceil(len(arr)/2))
+    midpt = int(ceil(len(arr)/2))
 
     half1 = mergeSort(arr[0:midpt])
     half2 = mergeSort(arr[midpt:])
@@ -76,6 +76,20 @@ def BC(n, b, k):
         raise ValueError()
     return digits
 
+# TODO: implement RadixSort
 def radixSort(u, b, a):
-    
-    return
+    k = ceil(log(u, b))
+    n = len(a)
+    v = []
+    result = []
+    for i in range(n):
+        v.append(BC(a[i][0], b, k))
+    for j in range(k):
+        for i in range(len(a)):
+            result.append((v[i][j], (a[i], v[i])))
+        result = countSort(b, result)
+    for i in range(n):
+        power = 0
+        for j in range(k):
+            a[i][0] += v[i][j] * (b ** power)
+    return a
