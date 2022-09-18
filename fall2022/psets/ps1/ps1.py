@@ -1,7 +1,7 @@
 from asyncio import base_tasks
 from math import log, ceil
-import time
-import random
+from time import time
+from random import randint
 
 """
 See below for mergeSort and countSort functions, and for a useful helper function.
@@ -81,15 +81,60 @@ def radixSort(u, b, a):
     k = ceil(log(u, b))
     n = len(a)
     v = []
-    result = []
+    new_a = []
+    adict = {}
     for i in range(n):
-        v.append(BC(a[i][0], b, k))
+        kprime = a[i][0]
+        vprime = BC(kprime, b, k)
+        adict[kprime] = a[i][1]
+        v.append(vprime)
     for j in range(k):
-        for i in range(len(a)):
-            result.append((v[i][j], (a[i], v[i])))
-        result = countSort(b, result)
+        tosort = []
+        for i in range(n):
+            tosort.append((v[i][j], v[i]))
+        result = countSort(b, tosort)
     for i in range(n):
-        power = 0
+        sum = 0
         for j in range(k):
-            a[i][0] += v[i][j] * (b ** power)
-    return a
+            sum += (result[i][1][j] * (b ** j))
+        new_a.append((sum, adict[sum]))
+    return new_a
+
+# TODO: Create Test Experiments
+
+for i in range(2, 3):
+    for j in range(1, 21):
+        #print("n = " + str(i))
+        #print("u = " + str(j))
+
+        n = 2 ** i
+        u = 2 ** j
+        a = []
+        b = n
+        for _ in range(n):
+            a.append((randint(0, u-1), randint(0, u-1)))
+
+        countstart = time()
+        countSort(u, a)
+        countend = time()
+
+        radixstart = time()
+        radixSort(u, b, a)
+        radixend = time()
+
+        mergestart = time()
+        mergeSort(a)
+        mergeend = time()
+
+        counttime = countend - countstart
+        radixtime = radixend - radixstart
+        mergetime = mergeend - mergestart
+
+        if counttime > radixtime and counttime > mergetime:
+            print("count")
+        elif radixtime > counttime and radixtime > mergetime:
+            print("radix")
+        elif mergetime > radixtime and mergetime > counttime:
+            print("merge")
+
+
