@@ -93,16 +93,17 @@ class BinarySearchTree:
     def insert(self, key):
         if self.key is None:
             self.key = key
+            self.size = 1
         elif self.key > key: 
             if self.left is None:
                 self.left = BinarySearchTree(self.debugger)
             self.left.insert(key)
-            self.calculate_sizes()
+            self.size += 1
         elif self.key < key:
             if self.right is None:
                 self.right = BinarySearchTree(self.debugger)
             self.right.insert(key)
-            self.calculate_sizes()
+            self.size += 1
         return self
 
     
@@ -133,17 +134,17 @@ class BinarySearchTree:
         if direction == "L":
             if child_side == "L" and self.left:
                 self.left = self.left.rotate_left()
-                #self.left.calculate_sizes()
+                self.left.calculate_sizes()
             elif self.right:
                 self.right = self.right.rotate_left()
-                #self.right.calculate_sizes()
+                self.right.calculate_sizes()
         else:
             if child_side == "L" and self.left:
                 self.left = self.left.rotate_right()
-                #self.left.calculate_sizes()
+                self.left.calculate_sizes()
             elif self.right:
                 self.right = self.right.rotate_right()
-                #self.right.calculate_sizes()
+                self.right.calculate_sizes()
         return self
 
     def rotate_left(self):
