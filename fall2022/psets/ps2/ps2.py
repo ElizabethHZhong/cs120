@@ -96,13 +96,13 @@ class BinarySearchTree:
         elif self.key > key: 
             if self.left is None:
                 self.left = BinarySearchTree(self.debugger)
-            self.left.calculate_sizes()
             self.left.insert(key)
+            self.calculate_sizes()
         elif self.key < key:
             if self.right is None:
                 self.right = BinarySearchTree(self.debugger)
-            self.right.calculate_sizes()
             self.right.insert(key)
+            self.calculate_sizes()
         return self
 
     
@@ -133,29 +133,40 @@ class BinarySearchTree:
         if direction == "L":
             if child_side == "L" and self.left:
                 self.left = self.left.rotate_left()
+                #self.left.calculate_sizes()
             elif self.right:
                 self.right = self.right.rotate_left()
-                
+                #self.right.calculate_sizes()
         else:
             if child_side == "L" and self.left:
                 self.left = self.left.rotate_right()
+                #self.left.calculate_sizes()
             elif self.right:
                 self.right = self.right.rotate_right()
+                #self.right.calculate_sizes()
         return self
 
     def rotate_left(self):
-        if self.left:
-            if self.left.right:
-                self.left = self.left.right
-            self.left.right = self
-        return self.left
-
-    def rotate_right(self):
+        temp = BinarySearchTree(self.debugger)
+        temp.right = self.right
         if self.right:
             if self.right.left:
                 self.right = self.right.left
-            self.right.left = self
-        return self.right
+            else:
+                self.right = None
+            temp.right.left = self
+        return temp.right
+
+    def rotate_right(self):
+        temp = BinarySearchTree(self.debugger)
+        temp.left = self.left
+        if self.left:
+            if self.left.right:
+                self.left = self.left.right
+            else:
+                self.left = None
+            temp.left.right = self
+        return temp.left
 
     def print_bst(self):
         if self.left is not None:
@@ -164,3 +175,14 @@ class BinarySearchTree:
         if self.right is not None:
             self.right.print_bst()
         return self
+
+
+def init_tree(key):
+    T = BinarySearchTree()
+    T.key = key
+    return T
+
+tree = init_tree(10).insert(11).insert(12)
+#tree.print_bst()
+tree.rotate("L", "R")
+#tree.print_bst()
