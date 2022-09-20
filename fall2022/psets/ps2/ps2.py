@@ -89,20 +89,20 @@ class BinarySearchTree:
     
     returns the original (top level) tree - allows for easy chaining in tests
     '''
-    # slow?
+    # slow - fix the size calculation
     def insert(self, key):
         if self.key is None:
             self.key = key
         elif self.key > key: 
             if self.left is None:
                 self.left = BinarySearchTree(self.debugger)
+            self.left.calculate_sizes()
             self.left.insert(key)
-            self.calculate_sizes()
         elif self.key < key:
             if self.right is None:
                 self.right = BinarySearchTree(self.debugger)
+            self.right.calculate_sizes()
             self.right.insert(key)
-            self.calculate_sizes()
         return self
 
     
@@ -130,8 +130,32 @@ class BinarySearchTree:
        11 
     '''
     def rotate(self, direction, child_side):
-        # Your code goes here
+        if direction == "L":
+            if child_side == "L" and self.left:
+                self.left = self.left.rotate_left()
+            elif self.right:
+                self.right = self.right.rotate_left()
+                
+        else:
+            if child_side == "L" and self.left:
+                self.left = self.left.rotate_right()
+            elif self.right:
+                self.right = self.right.rotate_right()
         return self
+
+    def rotate_left(self):
+        if self.left:
+            if self.left.right:
+                self.left = self.left.right
+            self.left.right = self
+        return self.left
+
+    def rotate_right(self):
+        if self.right:
+            if self.right.left:
+                self.right = self.right.left
+            self.right.left = self
+        return self.right
 
     def print_bst(self):
         if self.left is not None:
