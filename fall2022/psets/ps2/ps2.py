@@ -51,16 +51,17 @@ class BinarySearchTree:
     ind: a number between 0 and n-1 (the number of nodes/objects)
     returns BinarySearchTree/Node or None
     '''
+    # incorrect - doesn't include right tree in size
     def select(self, ind):
         left_size = 0
         if self.left is not None:
             left_size = self.left.size
-        if ind == left_size:
+        if ind == left_size: 
             return self
         if left_size > ind and self.left is not None:
             return self.left.select(ind)
         if left_size < ind and self.right is not None:
-            return self.right.select(ind)
+            return self.right.select(ind - left_size - 1)
         return None
 
 
@@ -68,6 +69,7 @@ class BinarySearchTree:
     Searches for a given key
     returns a pointer to the object with target key or None (Roughgarden)
     '''
+    # correct
     def search(self, key):
         if self is None:
             return None
@@ -87,6 +89,7 @@ class BinarySearchTree:
     
     returns the original (top level) tree - allows for easy chaining in tests
     '''
+    # slow?
     def insert(self, key):
         if self.key is None:
             self.key = key
@@ -94,11 +97,12 @@ class BinarySearchTree:
             if self.left is None:
                 self.left = BinarySearchTree(self.debugger)
             self.left.insert(key)
+            self.calculate_sizes()
         elif self.key < key:
             if self.right is None:
                 self.right = BinarySearchTree(self.debugger)
             self.right.insert(key)
-        self.calculate_sizes()
+            self.calculate_sizes()
         return self
 
     
