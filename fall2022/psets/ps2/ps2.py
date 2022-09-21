@@ -155,9 +155,11 @@ class BinarySearchTree:
                 self.right = self.right.left
             else:
                 self.right = None
-            self.right.size = self.right.calc_size()
+            if self.right:
+                self.right.size = self.right.calc_size()
             temp.right.left = self
-            temp.right.size = temp.right.calc_size()
+            if temp.right:
+                temp.right.size = temp.right.calc_size()
         return temp.right
 
     def rotate_right(self):
@@ -168,9 +170,11 @@ class BinarySearchTree:
                 self.left = self.left.right
             else:
                 self.left = None
-            self.left.size = self.left.calc_size()
+            if self.left:
+                self.left.size = self.left.calc_size()
             temp.left.right = self
-            temp.left.size = temp.left.calc_size()
+            if temp.left:
+                temp.left.size = temp.left.calc_size()
         return temp.left
 
     def calc_size(self):
@@ -196,8 +200,3 @@ def init_tree(key):
     T = BinarySearchTree()
     T.key = key
     return T
-
-tree = init_tree(10).insert(11).insert(12)
-#tree.print_bst()
-tree.rotate("L", "R")
-#tree.print_bst()
