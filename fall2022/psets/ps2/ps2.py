@@ -134,56 +134,52 @@ class BinarySearchTree:
         if direction == "L":
             if child_side == "L" and self.left:
                 self.left = self.left.rotate_left()
-                self.size = self.left.size + self.right.size
             elif self.right:
                 self.right = self.right.rotate_left()
-                self.right.calculate_sizes()
         else:
             if child_side == "L" and self.left:
                 self.left = self.left.rotate_right()
-                self.left.calculate_sizes()
             elif self.right:
                 self.right = self.right.rotate_right()
-                self.right.calculate_sizes()
         return self
 
     def rotate_left(self):
         temp = BinarySearchTree(self.debugger)
         temp.right = self.right
         if self.right:
+            self.size -= self.right.size
             if self.right.left:
+                self.size += self.right.left.size
+                self.right.size -= self.right.left.size
                 self.right = self.right.left
             else:
                 self.right = None
-            if self.right:
-                self.right.size = self.right.calc_size()
             temp.right.left = self
-            if temp.right:
-                temp.right.size = temp.right.calc_size()
+            temp.right.size += self.size
         return temp.right
 
     def rotate_right(self):
         temp = BinarySearchTree(self.debugger)
         temp.left = self.left
         if self.left:
+            self.size -= self.left.size
             if self.left.right:
+                self.size += self.left.right.size
+                self.left.size -= self.left.right.size
                 self.left = self.left.right
             else:
                 self.left = None
-            if self.left:
-                self.left.size = self.left.calc_size()
             temp.left.right = self
-            if temp.left:
-                temp.left.size = temp.left.calc_size()
+            temp.left.size += self.size
         return temp.left
 
     def calc_size(self):
         if self.left and self.right:
-            return self.left.size + self.right.size
+            return self.left.size + self.right.size + 1
         elif self.left and not self.right:
-            return self.left.size
+            return self.left.size + 1
         elif not self.left and self.right:
-            return self.right.size
+            return self.right.size + 1
         else:
             return 1
 
