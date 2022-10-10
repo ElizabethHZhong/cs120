@@ -21,7 +21,8 @@ random.seed(120)
 
 
 '''
-A Las Vegas Algorithm to find a key-value pair (Ij, Kj) such that Kj is an i’th smallest key.
+A Las Vegas Algorithm to find a key-value pair (Ij, Kj) such that Kj is an i’th 
+smallest key.
 arr: a list of key-value pair tuples
     e.g. [(K0, V0), (K1, V1), ..., (Ki, Vi), ..., (Kn, Vn)] 
     ... in this problem set, the values are irrelevant
@@ -31,9 +32,41 @@ returns: An key-value pair (Kj, Vj) such that Kj is an i’th smallest key.
 
 
 def QuickSelect(arr, i):
-    # Your code here
+    n = len(arr)
+    # only one possible key-value pair to return
+    if n <= 1: return arr[0]
 
-    # Feel free to use get_random_index(arr) or get_random_int(start_inclusive, end_inclusive)
+    # get our random pivot point
+    p = get_random_index(arr)
+    keyp = arr[p][0]
+    
+    # initialize our three categories as arrays
+    a_less = []
+    a_more = []
+    a_equal = []
+
+    # loop through the array
+    for pair in arr:
+        if pair[0] < keyp:
+            a_less.append(pair)
+        elif pair[0] > keyp:
+            a_more.append(pair)
+        else:
+            a_equal.append(pair)
+
+    # store length of arrays in variables
+    n_less = len(a_less)
+    n_more = len(a_more)
+    n_equal = len(a_equal)
+
+    # Call QuickSelect recursively unless i is in a_equal
+    if i < n_less: return QuickSelect(a_less, i)
+    elif i >= (n_less + n_equal): return QuickSelect(a_more, i - n_less - n_equal)
+    return a_equal[0]
+
+
+    # Feel free to use get_random_index(arr) or get_random_int(start_inclusive, 
+    # end_inclusive)
     # ... see the helper functions below
     pass
     return (0, -1)
