@@ -2,6 +2,7 @@
 # Fill in the specification for the two RAM programs and use the provided graphing function to graph the running times.
 # Run `python experiments.py` to generate the plot.
 
+from unittest import result
 import simulator
 
 import matplotlib.pyplot as plt
@@ -34,7 +35,10 @@ prog1 = [8,
     ['assign', eleven_id, 11],
     ['assign', output_len_id, 1], 
     ['assign', output_ptr_id, 0],
-    # TODO: lines 5-8 from pseudocode
+    ['assign', result_id, 11],
+    ['read', counter_id, zero_id],
+    ['goto', counter_id, 11],
+    ['*', result_id, result_id, result_id],
     ['-', counter_id, counter_id, one_id],
     ['goto', zero_id, 7],
     ['*', result_id, result_id, eleven_id],
@@ -57,7 +61,11 @@ prog2 = [10,
     ['*', temp_id, temp_id, W_id],
     ['-', result_id, result_id, temp_id],
     ['-', counter_id, counter_id, one_id],
-    # TODO: lines 14-19 from pseudocode
+    ['goto', zero_id, 8],
+    ['*', result_id, result_id, eleven_id],
+    ['/', temp_id, result_id, W_id],
+    ['-', result_id, result_id, temp_id],
+    ['write', output_ptr_id, result_id]
 ]
 
 
