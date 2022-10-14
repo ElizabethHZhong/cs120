@@ -65,22 +65,19 @@ def QuickSelect(arr, i):
     return a_equal[0]
 
 
-    # Feel free to use get_random_index(arr) or get_random_int(start_inclusive, 
-    # end_inclusive)
-    # ... see the helper functions below
-    pass
-    return (0, -1)
-
-
 '''
-Uses MergeSort to resolve a number of queries where each query is to find an key-value pair (Kj, Vj) such that Kj is an i’th smallest key.
+Uses MergeSort to resolve a number of queries where each query is to find an 
+key-value pair (Kj, Vj) such that Kj is an i’th smallest key.
 arr: a list of key-value pair tuples
     e.g. [(K0, V0), (K1, V1), ..., (Ki, Vi), ..., (Kn, Vn)] 
     ... in this problem set, the values are irrelevant
 query_list (aka i_arr): a list of integers [0, n-1] 
-returns: An list of key-value pairs such that for each query qi, the i'th element in the returned list is (Kj, Vj) such that Kj is an i’th smallest key.
-NOTE: This is different from the QuickSelect definition. This function takes in a set of queries and returns a list corresponding to their results. 
-    ... this is to properly benchmark for the experiments. We only want to run MergeSort once and then use that one result to resolve all queries.
+returns: An list of key-value pairs such that for each query qi, the i'th 
+element in the returned list is (Kj, Vj) such that Kj is an i’th smallest key.
+NOTE: This is different from the QuickSelect definition. This function takes in 
+a set of queries and returns a list corresponding to their results. 
+    ... this is to properly benchmark for the experiments. We only want to run 
+    MergeSort once and then use that one result to resolve all queries.
 '''
 
 
