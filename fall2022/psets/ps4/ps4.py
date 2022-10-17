@@ -82,10 +82,11 @@ a set of queries and returns a list corresponding to their results.
 
 
 def MergeSortSelect(arr, query_list):
-    # Only call MergeSort once
-    # ... MergeSort has already been implemented for you (see below)
-    pass
-    return [(0, -1)] * len(query_list)  # replace this line with your return
+    sorted = MergeSort(arr)
+    result = []
+    for query in query_list:
+        result.append(sorted[query])
+    return result
 
 
 ##################################
@@ -97,11 +98,11 @@ def MergeSortSelect(arr, query_list):
 
 def experiments():
     # Edit this parameter
-    k = [1, 1, 1, 1, 1]
+    k = [25, 26, 27, 28, 29]
 
     # Feel free to edit these initial parameters
 
-    RUNS = 20  # Number of runs for each trial; more runs means better distributions approximation but longer experiment
+    RUNS = 30  # Number of runs for each trial; more runs means better distributions approximation but longer experiment
     HEIGHT = 1.5  # Height of a chart
     WIDTH = 3   # Width of a chart
     # Determines if subcharts share the same axis scale/limits
