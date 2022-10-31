@@ -1,5 +1,5 @@
 from itertools import product, combinations
-from re import sub
+from pysat.solvers import Glucose3
 
 '''
 Before you start: Read the README and the Graph implementation below.
@@ -8,7 +8,6 @@ Before you start: Read the README and the Graph implementation below.
 class Graph:
     '''
     A graph data structure with number of nodes N, list of sets of edges, and a list of color labels.
-
     Nodes and colors are both 0-indexed.
     For a given node u, its edges are located at self.edges[u] and its color is self.color[u].
     '''
@@ -64,6 +63,14 @@ class Graph:
             g = g.add_edge(g1u, g2v + g1.N)
         return g
 
+    # Checks if a given subset of nodes is an independent set 
+    def is_independent_set(self, subset):
+        for v in subset:
+            for u in self.edges[v]:
+                if u in subset:
+                    return False
+        return True
+
     # Checks all colors
     def is_graph_coloring_valid(self):
         for u in range(self.N):
@@ -81,7 +88,6 @@ class Graph:
 
 '''
     Introduction: We've implemented exhaustive search for you below.
-
     You don't need to implement any extra code for this part.
 '''
 
@@ -90,7 +96,7 @@ class Graph:
 def exhaustive_search_coloring(G, k=3):
 
     # Iterate through every possible coloring of nodes
-    for coloring in product(range(0,k), repeat=G.N):
+    for coloring in product(range(1,k+1), repeat=G.N):
         G.colors = list(coloring)
         if G.is_graph_coloring_valid():
             return G.colors
@@ -100,28 +106,18 @@ def exhaustive_search_coloring(G, k=3):
     return None
 
 
+
 '''
-    Part A: Implement two coloring via breadth-first search.
-
-    Hint: You will need to adapt the given BFS pseudocode so that it works on all graphs,
-    regardless of whether they are connected.
-
-    When you're finished, check your work by running python3 -m ps5_color_tests 2.
+    We've implemented bfs_2_coloring for you below.
+    You don't need to implement any extra code for this part.
 '''
 
 # Given an instance of the Graph class G and a subset of precolored nodes,
 # Assigns precolored nodes to have color 2, and attempts to color the rest using colors 0 and 1.
+#
 # Precondition: Assumes that the precolored_nodes form an independent set.
 # If successful, modifies G.colors and returns the coloring.
 # If no coloring is possible, resets all of G's colors to None and returns None.
-
-# helper function to get a non-visited node
-def get_startnode(G, visited):
-    for node in range(G.N):
-        if node not in visited:
-            return node
-    return -1
-
 def bfs_2_coloring(G, precolored_nodes=None):
     # Assign every precolored node to have color 2
     # Initialize visited set to contain precolored nodes if they exist
@@ -135,99 +131,84 @@ def bfs_2_coloring(G, precolored_nodes=None):
 
         if len(precolored_nodes) == G.N:
             return G.colors
-    
-    # TODO: Complete this function by implementing two-coloring using the colors 0 and 1.
-    # If there is no valid coloring, reset all the colors to None using G.reset_colors()
 
-    # while we still haven't colored all of the nodes
-    while len(visited) != G.N:
-        # initialize starting node and frontier
-        s = get_startnode(G, visited)
-        f = [s]
+    while len(visited) < G.N:
+        src = [node for node in range(G.N) if node not in visited][0]
+        G.colors[src] = 0
+        frontier = [src]
 
-        # while there are still nodes to color
-        while len(f) != 0:
-            # pop first node in frontier into variable
-            current = f[0] 
+        while len(frontier) > 0:
+            u = frontier.pop(0)
+            for v in G.edges[u]:
+                if G.colors[v] == G.colors[u]:
+                    G.reset_colors()
+                    return None
 
-            # append all neighbors that haven't been visited to frontier
-            for neighbor in G.edges[current]:
-                if neighbor not in visited:
-                    f.append(neighbor)
-            
-            # color the current node based on color of neighbor node
-            for neighbor in G.edges[current]:
-                if G.colors[neighbor] == 0:
-                    G.colors[current] = 1
-                elif G.colors[neighbor] == 1:
-                    G.colors[current] = 0
-            
-            # color the current node if none of the neighbor nodes are colored
-            if not G.colors[current]:
-                G.colors[current] = 0
+                if v not in visited:
+                    frontier.append(v)
+                    G.colors[v] = 1 - G.colors[u]
 
-            # add the current node to visited, remove current node from frontier
-            visited.add(current)
-            f.remove(current)
+            visited.add(u)
 
-    # after coloring all nodes, check if the coloring is valid
     if G.is_graph_coloring_valid():
         return G.colors
-    else:
-        G.reset_colors()
-        return None
-
-'''
-    Part B: Implement is_independent_set.
-'''
-
-# Given an instance of the Graph class G and a subset of precolored nodes,
-# Checks if subset is an independent set in G 
-def is_independent_set(G, subset):
-    for node in subset:
-        if len(set(G.edges[node]).intersection(subset)) > 0:
-            return False
-    return True
-
-'''
-    Part C: Implement the 3-coloring algorithm from the sender receiver exercise.
     
-    Make sure to call the bfs_2_coloring and is_independent_set functions that you already implemented!
+    G.reset_colors()
+    return None
 
-    Hint 1: You will want to use the Python `combinations` function from the itertools library
-    to enumerate all possible independent sets. Remember that each element of combinations is a tuple,
-    so you may need to convert it to a list.
+'''
+    We've implemented iset_bfs_3_coloring for you below.
+    You don't need to implement any extra code for this part.
+'''
+# Given an instance of the Graph class G and a subset of precolored nodes, searches for a 3 coloring
+def iset_bfs_3_coloring(G):
+    for set_size in range(G.N // 3 + 1):
+        for combination in combinations(range(G.N), set_size):
+            subset = list(combination)
+            if G.is_independent_set(subset):
+                coloring = bfs_2_coloring(G, subset)
+                if coloring is not None:
+                    return coloring
+    return None
 
-    Hint 2: Python itertools functions compute their results lazily, which means that they only
-    calculate each element as the program requests it. This saves time and space, since it
-    doesn't need to store the entire list of combinations up front. You should NOT try to convert the result
-    of the entire combinations call to a list, since that will force Python to precompute everything.
-    Instead, you should iterate over them in a for loop, which will maintain the lazy behavior we want.
-    See the call to "product" in exhaustive_search for an example.
-
-    When you're finished, check your work by running python3 -m ps5_color_tests 3.
+'''
+    Part A: Implement the reduction to SAT. 
+    Here, you should use the SAT solver that we've defined to add clauses, and use the built-in get_model function
+    to find the solution if one exists.
+    Link to documentation: https://pysathq.github.io/docs/html/api/solvers.html#pysat.solvers.Solver.get_model
+    Hint: There are three parts to this problem.
+    1. Transform the graph into an input that can be fed into the SAT solver.
+    2. Run the solver using the solver.solve() and solver.get_model() functions. We have added this part for you.
+    3. Transform the solver output into a valid coloring if one exists, else return None.
+    When you're finished, check your work by running python3 -m ps8_color_tests 3.
     Don't worry if some of your tests time out: that is expected.
 '''
 
-# Given an instance of the Graph class G (which has a subset of precolored nodes), searches for a 3 coloring
+# Given an instance of the Graph class G, reduces 3 coloring to SAT
 # If successful, modifies G.colors and returns the coloring.
 # If no coloring is possible, resets all of G's colors to None and returns None.
+def sat_3_coloring(G):
+    solver = Glucose3()
 
-def iset_bfs_3_coloring(G):
-    # generate the subsets
-    for k in range(G.N // 3 + 1):
-        for subset in combinations(range(0, G.N), k):
-            # check if this subset is an independent set
-            if is_independent_set(G, subset):
-                # return coloring if there is a 2-coloring
-                if bfs_2_coloring(G, subset):
-                    return G.colors
-    # If there is not a 3-coloring, return None
-    G.reset_colors()
-    return None
+    # TODO: Add the clauses to the solver
+
+    # Attempt to solve, return None if no solution possible
+    if not solver.solve():
+        G.reset_colors()
+        return None
+
+    # Accesses the model in form [-v1, v2, -v3 ...], which denotes v1 = False, v2 = True, v3 = False, etc.
+    solution = solver.get_model()
+
+    # TODO: If a solution is found, convert it into a coloring and update G.colors
+
+    return G.colors
+
+
 
 # Feel free to add miscellaneous tests below!
 if __name__ == "__main__":
     G0 = Graph(2).add_edge(0, 1)
     print(bfs_2_coloring(G0))
     print(iset_bfs_3_coloring(G0))
+    print(sat_3_coloring(G0))

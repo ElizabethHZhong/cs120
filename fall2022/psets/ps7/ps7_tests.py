@@ -1,12 +1,12 @@
 from typing import OrderedDict
 import random
 random.seed(120)
-from ps5_helpers import timeout, color, generate_line_of_ring_subgraphs, generate_random_linked_cluster, validate_graph_coloring, generate_line_of_complete_subgraphs, generate_complete_graph
-from ps5 import Graph, exhaustive_search_coloring, bfs_2_coloring, iset_bfs_3_coloring
+from ps7_helpers import timeout, color, generate_line_of_ring_subgraphs, generate_random_linked_cluster, validate_graph_coloring, generate_line_of_complete_subgraphs, generate_complete_graph
+from ps7 import Graph, exhaustive_search_coloring, bfs_2_coloring, iset_bfs_3_coloring, sat_3_coloring
 
-
+# Number of seconds before timeout; feel free to adjust
 TIMEOUT_LENGTH = 2
-INCLUDE_TESTS_FOR_STAFF_CODE = True
+INCLUDE_TESTS_FOR_STAFF_CODE = False
 
 class Debugger:
     def __init__(self):
@@ -36,7 +36,6 @@ def multi_getattr(obj, attr, default=None):
     equivalent to x.a.b.c.d. When a default argument is given, it is
     returned when any attribute in the chain doesn't exist; without
     it, an exception is raised when a missing attribute is encountered.
-
     """
     attributes = attr.split(".")
     for i in attributes:
@@ -114,7 +113,8 @@ testcases = {
         lambda: Graph(2).add_edge(0, 1), # line length 2
         lambda: Graph(2).add_edge(1, 0), # line length 2
         lambda: Graph(4).add_edge(0, 1).add_edge(1, 2).add_edge(2, 3), # line length 4
-        lambda: Graph(4).add_edge(0, 1).add_edge(1, 2).add_edge(2, 3).add_edge(3, 0), # sqaure
+        lambda: Graph(4).add_edge(0, 1).add_edge(2, 3), # pair of lines
+        lambda: Graph(4).add_edge(0, 1).add_edge(1, 2).add_edge(2, 3).add_edge(3, 0), # square
         lambda: Graph(8).add_edge(0, 1).add_edge(1, 2).add_edge(2, 3).add_edge(3, 0).add_edge(0, 4).add_edge(1, 5).add_edge(2, 6).add_edge(3,7), # sqaure with line out of each node
         lambda: Graph(8).add_edge(0, 1).add_edge(1, 2).add_edge(2, 3).add_edge(3, 4).add_edge(4, 5).add_edge(5, 6).add_edge(7, 0).clone_and_merge(Graph(8).add_edge(0, 1).add_edge(1, 2).add_edge(2, 3).add_edge(3, 4).add_edge(4, 5).add_edge(5, 6).add_edge(7, 0), None, None), # sqaure with line out of each node
         lambda: Graph(8).add_edge(0, 1).add_edge(1, 2).add_edge(2, 3).add_edge(3, 4).add_edge(4, 5).add_edge(5, 6).add_edge(7, 0).clone_and_merge(Graph(8).add_edge(0, 1).add_edge(1, 2).add_edge(2, 3).add_edge(3, 4).add_edge(4, 5).add_edge(5, 6).add_edge(7, 0), 0, 0), # sqaure with line out of each node
@@ -200,48 +200,16 @@ testcases = {
     ],
 }
 
-
-def test_2_coloring():
-    tests = OrderedDict()
-
-    if INCLUDE_TESTS_FOR_STAFF_CODE:
-        tests["Exhaustive 2-Coloring (Staff Provided)"] = [] 
-        tests["Exhaustive 2-Coloring (Staff Provided)"] += [generate_test("Should work on 2-colorable graphs", g, lambda g: validate_graph_coloring(g, exhaustive_search_coloring(g, 2)), lambda g: True) for g in testcases["2-colorable"]]
-
-
-        tests["BFS 2-Coloring (Staff Provided)"] = [] 
-        tests["BFS 2-Coloring (Staff Provided)"] += [generate_test("Should work on 2-colorable graphs", g, lambda g: validate_graph_coloring(g, bfs_2_coloring(g)), lambda g: True) for g in testcases["2-colorable"]]
-
-    run_tests(tests)
-
 def test_3_coloring():
     tests = OrderedDict()
-
-    if INCLUDE_TESTS_FOR_STAFF_CODE:
-        #tests["Exhaustive 3-Coloring (Staff Provided)"] = [] 
-        #tests["Exhaustive 3-Coloring (Staff Provided)"] += [generate_test("Should work on 2-colorable graphs", g, lambda g: validate_graph_coloring(g, exhaustive_search_coloring(g, 3)), lambda g: True) for g in testcases["2-colorable"]]
-        #tests["Exhaustive 3-Coloring (Staff Provided)"] += [generate_test("Should work on 2-or-3-colorable graphs", g, lambda g: validate_graph_coloring(g, exhaustive_search_coloring(g, 3)), lambda g: True) for g in testcases["2-or-3-colorable"]]
-        #tests["Exhaustive 3-Coloring (Staff Provided)"] += [generate_test("Should work on 3-colorable graphs", g, lambda g: validate_graph_coloring(g, exhaustive_search_coloring(g, 3)), lambda g: True) for g in testcases["3-colorable"]]
-        #tests["Exhaustive 3-Coloring (Staff Provided)"] += [generate_test("Should not work on k>3-colorable graphs", g, lambda g: validate_graph_coloring(g, exhaustive_search_coloring(g, 3)), lambda g: False) for g in testcases["k>3-colorable"]]
-
-        tests["ISET 3-Coloring (Staff Provided)"] = [] 
-        tests["ISET 3-Coloring (Staff Provided)"] += [generate_test("Should work on 2-colorable graphs", g, lambda g: validate_graph_coloring(g, iset_bfs_3_coloring(g)), lambda g: True) for g in testcases["2-colorable"]]
-        tests["ISET 3-Coloring (Staff Provided)"] += [generate_test("Should work on 2-or-3-colorable graphs", g, lambda g: validate_graph_coloring(g, iset_bfs_3_coloring(g)), lambda g: True) for g in testcases["2-or-3-colorable"]]
-        tests["ISET 3-Coloring (Staff Provided)"] += [generate_test("Should work on 3-colorable graphs", g, lambda g: validate_graph_coloring(g, iset_bfs_3_coloring(g)), lambda g: True) for g in testcases["3-colorable"]]
-        tests["ISET 3-Coloring (Staff Provided)"] += [generate_test("Should not work on k>3-colorable graphs", g, lambda g: validate_graph_coloring(g, iset_bfs_3_coloring(g)), lambda g: False) for g in testcases["k>3-colorable"]]
+    tests["SAT 3-Coloring"] = [] 
+    tests["SAT 3-Coloring"] += [generate_test("Should work on 2-colorable graphs", g, lambda g: validate_graph_coloring(g, sat_3_coloring(g)), lambda g: True) for g in testcases["2-colorable"]]
+    tests["SAT 3-Coloring"] += [generate_test("Should work on 2-or-3-colorable graphs", g, lambda g: validate_graph_coloring(g, sat_3_coloring(g)), lambda g: True) for g in testcases["2-or-3-colorable"]]
+    tests["SAT 3-Coloring"] += [generate_test("Should work on 3-colorable graphs", g, lambda g: validate_graph_coloring(g, sat_3_coloring(g)), lambda g: True) for g in testcases["3-colorable"]]
+    tests["SAT 3-Coloring"] += [generate_test("Should not work on k>3-colorable graphs", g, lambda g: validate_graph_coloring(g, sat_3_coloring(g)), lambda g: False) for g in testcases["k>3-colorable"]]
 
     run_tests(tests)
 
 
 if __name__ == "__main__":
-    import sys
-    if len(sys.argv) == 1:
-        test_2_coloring()
-        test_3_coloring()
-    else:
-        if sys.argv[1] == '2':
-            test_2_coloring()
-        elif sys.argv[1] == '3':
-            test_3_coloring()
-        else:
-            print("Please pass in a valid argument (2 or 3)")
+    test_3_coloring()
