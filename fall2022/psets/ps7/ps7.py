@@ -1,4 +1,5 @@
 from itertools import product, combinations
+from pkg_resources import cleanup_resources
 from pysat.solvers import Glucose3
 
 '''
@@ -187,10 +188,40 @@ def iset_bfs_3_coloring(G):
 # Given an instance of the Graph class G, reduces 3 coloring to SAT
 # If successful, modifies G.colors and returns the coloring.
 # If no coloring is possible, resets all of G's colors to None and returns None.
+
+# convert the given vertex and color into a single number
+def base_b(b, v, k):
+    return v * b + k + 1
+
+# reverse the process of turning vertex and color into single number
+def reverse_base(b, l):
+    l -= 1
+    k = l % b
+    v = l // b
+    return (v, k)
+
 def sat_3_coloring(G):
     solver = Glucose3()
+    k = 3 # three coloring
+    if G.N > k:
+        base = G.N
+    else:
+        base = k
 
     # TODO: Add the clauses to the solver
+    # every node is assigned a color
+    for node in range(G.N):
+        clause = []
+        for i in range(k):
+            clause.append(base_b(base, node, i))
+        solver.add_clause(clause)
+
+    # neighboring nodes don't have same coloring
+    for node in range(G.N):
+        for neighbor in G.edges[node]:
+            for i in range(0, k):
+                clause = [base_b(base, node, i) * (-1), base_b(base, neighbor, i) * (-1)]
+                solver.add_clause(clause)
 
     # Attempt to solve, return None if no solution possible
     if not solver.solve():
@@ -201,6 +232,11 @@ def sat_3_coloring(G):
     solution = solver.get_model()
 
     # TODO: If a solution is found, convert it into a coloring and update G.colors
+    for l in solution:
+        if l < 0:
+            continue
+        node, color = reverse_base(base, l)
+        G.colors[node] = color
 
     return G.colors
 
