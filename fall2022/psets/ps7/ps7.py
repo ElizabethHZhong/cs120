@@ -214,15 +214,12 @@ def sat_3_coloring(G):
         clause = []
         for i in range(k):
             clause.append(base_b(base, node, i))
+            # neighboring nodes don't have same coloring
+            for neighbor in G.edges[node]:
+                clause_two = [base_b(base, node, i) * (-1), base_b(base, neighbor, i) * (-1)]
+                solver.add_clause(clause_two)
         solver.add_clause(clause)
-
-    # neighboring nodes don't have same coloring
-    for node in range(G.N):
-        for neighbor in G.edges[node]:
-            for i in range(0, k):
-                clause = [base_b(base, node, i) * (-1), base_b(base, neighbor, i) * (-1)]
-                solver.add_clause(clause)
-
+                
     # Attempt to solve, return None if no solution possible
     if not solver.solve():
         G.reset_colors()
