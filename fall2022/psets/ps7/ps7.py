@@ -191,13 +191,13 @@ def iset_bfs_3_coloring(G):
 
 # convert the given vertex and color into a single number
 def base_b(b, v, k):
-    return v * b + k + 1
+    return v * 10 + k + 1
 
 # reverse the process of turning vertex and color into single number
 def reverse_base(b, l):
     l -= 1
-    k = l % b
-    v = l // b
+    k = l % 10
+    v = l // 10
     return (v, k)
 
 def sat_3_coloring(G):
@@ -209,15 +209,16 @@ def sat_3_coloring(G):
         base = k
 
     # TODO: Add the clauses to the solver
-    # every node is assigned a color
     for node in range(G.N):
         clause = []
         for i in range(k):
+            # every node is assigned a color
             clause.append(base_b(base, node, i))
             # neighboring nodes don't have same coloring
             for neighbor in G.edges[node]:
-                clause_two = [base_b(base, node, i) * (-1), base_b(base, neighbor, i) * (-1)]
-                solver.add_clause(clause_two)
+                if neighbor < node:
+                    clause_two = [base_b(base, node, i) * (-1), base_b(base, neighbor, i) * (-1)]
+                    solver.add_clause(clause_two)
         solver.add_clause(clause)
                 
     # Attempt to solve, return None if no solution possible
